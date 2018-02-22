@@ -1,0 +1,92 @@
+---
+  - name: Pure-Driver Download
+    git:
+     repo: 'https://github.com/purestorage/rest-client.git'
+     dest: /root/pure-rest-client
+
+  - name: install pure-client
+    args:
+      chdir: /root/pure-rest-client/
+    command: python setup.py install
+    register: pure_setup
+
+
+  - name: Set Pure for Cinder in [pure-iscsi]
+    ini_file:
+      path: /etc/cinder/cinder.conf
+      section: pure-iscsi 
+      option: "{{ item.option }}"
+      value: "{{ item.value }}"
+      backup: yes
+      group: cinder
+      state: present
+      mode: 0640
+    no_log: "{{ item.no_log|default(false) }}"
+    with_items:
+      # Pure Settings in pure-iscsi
+      - { option: "volume_backend_name", value: "pure-iscsi" }
+      - { option: "volume_driver", value: "cinder.volume.drivers.pure.PureISCSIDriver" }
+      - { option: "san_ip", value: "{{ IP_ADDRESS }}" }
+      - { option: "pure_api_token", value: "{{ PURE_TOKEN }}" }
+      - { option: "use_multipath_for_image_xfer", value: "True" }
+
+
+  ## On undercloud cinder_internal_project
+  - name: Set up cinder_internal_project
+    block:
+    # openstack user create designate --password OpenStackAtLocationLabs2018 --email cinder_internal_project@localhost
+    - name: Create Cinder_Internal_User
+      os_user:
+        cloud: overcloud
+        domain: default
+        name: "{{ CINDER_PURE_USER_NAME }}"
+        password: "{{ CINDER_PURE_USER_PASSWORD }}"
+      register: cinder_internal_user
+    - name: Create Project Cinder_Internal_Project 
+      os_project:
+        cloud: overcloud
+        state: present 
+        name: "{{ CINDER_PURE_USER_PROJECT }}"
+        description: "{{ CINDER_PURE_USER_NAME }}"
+        domain_id: default
+    - name: Make "{{ CINDER_PURE_USER_NAME }}" user member of the project "{{ CINDER_PURE_USER_PROJECT }}"
+      os_user_role:
+        cloud: overcloud
+        project: "{{ CINDER_PURE_USER_PROJECT }}"
+        user: "{{ CINDER_PURE_USER_NAME }}"
+        role: _member_
+    run_once: true
+    delegate_to: 127.0.0.1
+    become: false
+    tags: create_user
+
+
+  - name: Set Pure for Cinder in [DEFAULT]
+    ini_file:
+      path: /etc/cinder/cinder.conf
+      section: DEFAULT
+      option: "{{ item.option }}"
+      value: "{{ item.value }}"
+      backup: yes
+      group: cinder
+      state: present
+      mode: 0640
+    no_log: "{{ item.no_log|default(false) }}"
+    with_items:
+      # Pure Settings in pure-iscsi
+      - { option: "Debug", value: "True" }
+      - { option: "default_volume_type", value: "pure" }
+      - { option: "Verbose", value: "True" }
+      - { option: "enabled_backends", value: "pure-iscsi" }
+      - { option: "cinder_internal_tenant_project_id", value: "{{ cinder_internal_user.user.id  }}" }
+      - { option: "cinder_internal_tenant_user_id", value: "{{ cinder_internal_user.user.id  }}" }
+      - { option: "image_volume_cache_max_size_gb", value: "200" }
+      - { option: "image_volume_cache_max_count", value: "50" }
+      - { option: "image_volume_cache_enabled", value: "True" }
+      - { option: "pure_eradicate_on_delete", value: "True" }
+    #when: "'Controller' in inventory_hostname"
+
+  - name: Restart PCS Cinder services
+    command: pcs resource restart openstack-cinder-volume
+    run_once: true
+    tags: pcs

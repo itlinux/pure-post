@@ -1,0 +1,20 @@
+== ROLE PURE STORAGE
+
+Pure role:
+- pure for controllers and compute
+
+  - This role sets all the variable for the controllers
+  - It get the driver from GITHUB and installs it
+  - the main playbook has the compute section with a tag.
+
+==== Users and Project
+It creates a user and a project for Pure to use
+
+=== License
+-------
+Apache
+
+
+=== Author Information
+------------------
+Remo Mattei

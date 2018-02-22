@@ -1,0 +1,41 @@
+- hosts: controllers
+  gather_facts: yes
+  become: yes
+  remote_user: heat-admin
+  roles:
+   - pure
+- hosts: computes
+  gather_facts: yes
+  become: yes
+  remote_user: heat-admin
+  tasks:
+  - name: Setting Pure for Compute Nodes libvirt
+    ini_file:
+      path: /etc/cinder/cinder.conf
+      section: libvirt
+      option: "{{ item.option }}"
+      value: "{{ item.value }}"
+      backup: yes
+      group: cinder
+      state: present
+      mode: 0640
+    no_log: "{{ item.no_log|default(false) }}"
+    with_items:
+      # Pure Settings in pure-iscsi
+      - { option: "volume_use_multipath", value: "true" }
+    tags: compute
+  - name: Setting Pure for Compute Nodes Defaults
+    ini_file:
+      path: /etc/nova/nova.conf
+      section: DEFAULT
+      option: "{{ item.option }}"
+      value: "{{ item.value }}"
+      backup: yes
+      group: nova
+      state: present
+      mode: 0640
+    no_log: "{{ item.no_log|default(false) }}"
+    with_items:
+      # Pure Settings in Nova
+      - { option: "use_multipath_for_image_xfer", value: "true" }
+    tags: compute

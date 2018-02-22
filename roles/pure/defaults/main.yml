@@ -1,0 +1,8 @@
+---
+IP_ADDRESS: 172.16.203.10
+PURE_TOKEN: 91ac3220-4dc7-55c2-b1e9-4b243f411b45
+HOSTNAME_CONTROLLLER: "os-controller-0"
+CINDER_PURE_USER_PROJECT: "cinder_pure_internal_project"
+CINDER_PURE_USER_PASSWORD: "OpenStack" 
+CINDER_PURE_USER_NAME: "cinder_pure_internal"
+
