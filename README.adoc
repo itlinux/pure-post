@@ -8,7 +8,7 @@ Pure role:
   - It get the driver from GITHUB and installs it
   - the main playbook has the compute section with a tag.
 
-IMPORTANT:
+IMPORTANT: I added the dedicated user and project for performance! 
 
 ==== Users and Project
 It creates a user and a project for Pure to use
