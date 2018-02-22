@@ -1,3 +1,4 @@
+:icons: font
 == ROLE PURE STORAGE
 
 Pure role:
@@ -7,14 +8,14 @@ Pure role:
   - It get the driver from GITHUB and installs it
   - the main playbook has the compute section with a tag.
 
+IMPORTANT:
+
 ==== Users and Project
 It creates a user and a project for Pure to use
 
 === License
--------
 Apache
 
 
 === Author Information
-------------------
 Remo Mattei
