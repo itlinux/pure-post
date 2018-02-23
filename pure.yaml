@@ -1,6 +1,5 @@
 - hosts: controllers
   gather_facts: yes
-  become: yes
   remote_user: heat-admin
   roles:
    - pure

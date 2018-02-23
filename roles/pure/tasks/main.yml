@@ -29,6 +29,7 @@
       - { option: "san_ip", value: "{{ IP_ADDRESS }}" }
       - { option: "pure_api_token", value: "{{ PURE_TOKEN }}" }
       - { option: "use_multipath_for_image_xfer", value: "True" }
+    tags: create_pure_iscsi
 
 
   ## On undercloud cinder_internal_project
@@ -59,8 +60,6 @@
     delegate_to: 127.0.0.1
     become: false
     tags: create_user
-
-
   - name: Set Pure for Cinder in [DEFAULT]
     ini_file:
       path: /etc/cinder/cinder.conf
@@ -73,7 +72,6 @@
       mode: 0640
     no_log: "{{ item.no_log|default(false) }}"
     with_items:
-      # Pure Settings in pure-iscsi
       - { option: "Debug", value: "True" }
       - { option: "default_volume_type", value: "pure" }
       - { option: "Verbose", value: "True" }
@@ -84,8 +82,7 @@
       - { option: "image_volume_cache_max_count", value: "50" }
       - { option: "image_volume_cache_enabled", value: "True" }
       - { option: "pure_eradicate_on_delete", value: "True" }
-    #when: "'Controller' in inventory_hostname"
-
+    tags: create_pure_default
   - name: Restart PCS Cinder services
     command: pcs resource restart openstack-cinder-volume
     run_once: true
