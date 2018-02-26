@@ -10,12 +10,12 @@
   tasks:
   - name: Setting Pure for Compute Nodes libvirt
     ini_file:
-      path: /etc/cinder/cinder.conf
+      path: /etc/nova/nova.conf
       section: libvirt
       option: "{{ item.option }}"
       value: "{{ item.value }}"
       backup: yes
-      group: cinder
+      group: nova
       state: present
       mode: 0640
     no_log: "{{ item.no_log|default(false) }}"
@@ -23,14 +23,15 @@
       # Pure Settings in pure-iscsi
       - { option: "volume_use_multipath", value: "true" }
     tags: compute
+
   - name: Setting Pure for Compute Nodes Defaults
     ini_file:
-      path: /etc/nova/nova.conf
+      path: /etc/cinder/cinder.conf
       section: DEFAULT
       option: "{{ item.option }}"
       value: "{{ item.value }}"
       backup: yes
-      group: nova
+      group: cinder
       state: present
       mode: 0640
     no_log: "{{ item.no_log|default(false) }}"
